@@ -3,7 +3,7 @@ package org.jetbrains.kotlin.gradle.targets.js
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.plugins.DslObject
-import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.language.base.plugins.LifecycleBasePlugin
 import org.gradle.testing.base.plugins.TestingBasePlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilationToRunnableFiles
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsExtension
@@ -85,7 +85,7 @@ internal class KotlinJsCompilationTestsConfigurator(
         val projectWithNodeJsPlugin = NodeJsPlugin.ensureAppliedInHierarchy(target.project)
 
         val testTask = registerTask(project, testTaskName, KotlinNodeJsTestTask::class.java) { testJs ->
-            testJs.group = "verification"
+            testJs.group = LifecycleBasePlugin.VERIFICATION_GROUP
 
             testJs.dependsOn(nodeModulesTask.getTaskOrProvider())
 
@@ -115,7 +115,7 @@ internal class KotlinJsCompilationTestsConfigurator(
         }
 
         project.afterEvaluate {
-            project.tasks.findByName(JavaBasePlugin.CHECK_TASK_NAME)?.dependsOn(testTask.getTaskOrProvider())
+            project.tasks.maybeCreate(LifecycleBasePlugin.CHECK_TASK_NAME).dependsOn(testTask.getTaskOrProvider())
 
             // defer nodeJs executable setup, as nodejs project settings may change during configuration
             testTask.configure {
