@@ -25,6 +25,7 @@ import org.jetbrains.kotlin.idea.configuration.KotlinMPPGradleProjectResolver
 import org.jetbrains.kotlin.idea.configuration.kotlinSourceSet
 import org.jetbrains.plugins.gradle.model.data.GradleSourceSetData
 import org.jetbrains.plugins.gradle.service.project.AbstractProjectResolverExtension
+import java.util.*
 
 @Order(ExternalSystemConstants.UNORDERED - 1)
 class KotlinAndroidMPPGradleProjectResolver : AbstractProjectResolverExtension() {
@@ -50,6 +51,7 @@ class KotlinAndroidMPPGradleProjectResolver : AbstractProjectResolverExtension()
     override fun populateModuleContentRoots(gradleModule: IdeaModule, ideModule: DataNode<ModuleData>) {
         super.populateModuleContentRoots(gradleModule, ideModule)
         if (IdeInfo.getInstance().isAndroidStudio || isAndroidProject) {
+            //TODO make sure should copy here
             KotlinMPPGradleProjectResolver.populateContentRoots(gradleModule, ideModule, resolverCtx)
             // Work around module disposal service which discards modules without accompanying ImportedModule instance
             for (childNode in ExternalSystemApiUtil.getChildren(ideModule, GradleSourceSetData.KEY)) {
@@ -80,6 +82,7 @@ class KotlinAndroidMPPGradleProjectResolver : AbstractProjectResolverExtension()
 
         val mppModel = resolverCtx.getExtraProject(gradleModule, KotlinMPPGradleModel::class.java) ?: return
 
+        val cache = WeakHashMap<Any, Any>()//TODO make sure need to copy here
         val androidSourceSets = mppModel
             .targets
             .asSequence()
